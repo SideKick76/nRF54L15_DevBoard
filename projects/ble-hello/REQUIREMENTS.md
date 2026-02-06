@@ -47,6 +47,17 @@ Basic Bluetooth Low Energy peripheral to verify hardware setup and BLE stack fun
 - [ ] Read characteristic: returns button press count
 - [ ] Notify characteristic: sends on button press
 
+### FR-005: NFC-Triggered BLE Advertising
+**Priority**: High
+**Description**: BLE advertising is controlled by NFC field detection instead of starting on boot
+**Acceptance Criteria**:
+- [ ] No BLE advertising on boot (NFC emulation starts instead)
+- [ ] Phone NFC tap triggers 30-second BLE advertising window
+- [ ] Advertising stops automatically after 30s if no connection
+- [ ] Subsequent NFC taps restart the 30s window
+- [ ] LED0 off when idle, blinks during advertising, solid when connected
+- [ ] NFC tag presents NDEF text record readable by phone
+
 ## Technical Specifications
 
 ### Pin Configuration (nRF54L15-DK)
