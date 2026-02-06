@@ -1,0 +1,26 @@
+# Build directories
+build/
+**/build/
+
+# West workspace
+.west/
+
+# IDE
+.vscode/
+*.code-workspace
+.idea/
+
+# Compiled files
+*.o
+*.a
+*.elf
+*.hex
+*.bin
+*.map
+
+# Debug
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
