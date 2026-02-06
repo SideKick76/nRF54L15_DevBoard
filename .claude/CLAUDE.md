@@ -3,6 +3,8 @@
 ## Project Structure
 ```
 /nrf54-projects/
+├── Dockerfile
+├── docker-compose.yml
 ├── projects/
 │   └── [project-name]/
 │       ├── REQUIREMENTS.md   # Project-specific requirements
@@ -17,8 +19,8 @@ Each project is self-contained with its own REQUIREMENTS.md.
 1. Create new project folder in `projects/`
 2. Add REQUIREMENTS.md with project specs
 3. Generate code in the project folder
-4. Build: `west build -b nrf54l15dk/nrf54l15/cpuapp projects/[project-name]`
-5. Flash: `west flash`
+4. Build: `docker exec nrf54-dev west build -b nrf54l15dk/nrf54l15/cpuapp projects/[project-name]`
+5. Flash: `docker exec nrf54-dev west flash`
 
 ## Creating a New Project
 ```bash
@@ -33,34 +35,37 @@ cp -r projects/ble-hello projects/new-project
 - Update project's REQUIREMENTS.md when adding features
 - Test before marking complete
 
-## Common Commands
+## Docker Commands
 ```bash
+# Build Docker image (one-time, takes ~20 min)
+docker build -t nrf54-dev .
+
+# Start container
+docker-compose up -d
+
 # Build project
-west build -b nrf54l15dk/nrf54l15/cpuapp projects/[name]
+docker exec nrf54-dev west build -b nrf54l15dk/nrf54l15/cpuapp projects/[name]
 
 # Flash firmware
-west flash
+docker exec nrf54-dev west flash
 
 # Clean build
-west build -t pristine
+docker exec nrf54-dev west build -t pristine
 
-# Monitor serial (115200 baud)
-# Use screen, minicom, or nRF Connect Serial Terminal
+# Monitor serial (from WSL2, not Docker)
 screen /dev/ttyACM0 115200
+
+# Enter container shell
+docker exec -it nrf54-dev bash
 ```
 
-## nRF Connect SDK Setup
-```bash
-# Install west
-pip install west
-
-# Initialize SDK (one-time)
-west init -m https://github.com/nrfconnect/sdk-nrf --mr v2.7.0 ncs
-cd ncs
-west update
-
-# Set environment
-source ncs/zephyr/zephyr-env.sh
+## USB Setup (Windows)
+Before starting container, attach J-Link to WSL2:
+```powershell
+# PowerShell (Admin)
+usbipd list
+usbipd bind --busid <BUSID>
+usbipd attach --wsl --busid <BUSID>
 ```
 
 ## Important
@@ -68,3 +73,4 @@ source ncs/zephyr/zephyr-env.sh
 - Match GPIO pins to nRF54L15-DK pinout
 - Default UART baud: 115200
 - nRF54L15 uses Cortex-M33 with TrustZone
+- Attach USB before starting Docker container

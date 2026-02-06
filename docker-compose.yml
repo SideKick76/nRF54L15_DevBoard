@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  nrf54-dev:
+    image: nrf54-dev
+    container_name: nrf54-dev
+    privileged: true
+    volumes:
+      - ./projects:/workspace/projects
+      - ncs-cache:/workdir/ncs
+    devices:
+      - /dev/ttyACM0:/dev/ttyACM0
+    stdin_open: true
+    tty: true
+    working_dir: /workspace/projects
+
+volumes:
+  ncs-cache:
