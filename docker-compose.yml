@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   nrf54-dev:
     image: nrf54-dev
@@ -7,12 +5,10 @@ services:
     privileged: true
     volumes:
       - ./projects:/workspace/projects
-      - ncs-cache:/workdir/ncs
     devices:
+      - /dev/bus/usb:/dev/bus/usb
       - /dev/ttyACM0:/dev/ttyACM0
+      - /dev/ttyACM1:/dev/ttyACM1
     stdin_open: true
     tty: true
-    working_dir: /workspace/projects
-
-volumes:
-  ncs-cache:
+    working_dir: /workspace

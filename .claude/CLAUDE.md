@@ -19,7 +19,7 @@ Each project is self-contained with its own REQUIREMENTS.md.
 1. Create new project folder in `projects/`
 2. Add REQUIREMENTS.md with project specs
 3. Generate code in the project folder
-4. Build: `docker exec nrf54-dev west build -b nrf54l15dk/nrf54l15/cpuapp projects/[project-name]`
+4. Build: `docker exec nrf54-dev west build -b nrf54l15dk/nrf54l15/cpuapp /workspace/projects/[project-name]`
 5. Flash: `docker exec nrf54-dev west flash`
 
 ## Creating a New Project
@@ -37,14 +37,14 @@ cp -r projects/ble-hello projects/new-project
 
 ## Docker Commands
 ```bash
-# Build Docker image (one-time, takes ~20 min)
+# Build Docker image (one-time, takes ~10 min)
 docker build -t nrf54-dev .
 
-# Start container
+# Start container (after attaching USB)
 docker-compose up -d
 
 # Build project
-docker exec nrf54-dev west build -b nrf54l15dk/nrf54l15/cpuapp projects/[name]
+docker exec nrf54-dev west build -b nrf54l15dk/nrf54l15/cpuapp /workspace/projects/[name]
 
 # Flash firmware
 docker exec nrf54-dev west flash
@@ -57,6 +57,9 @@ screen /dev/ttyACM0 115200
 
 # Enter container shell
 docker exec -it nrf54-dev bash
+
+# List connected devices
+docker exec nrf54-dev nrfutil device list
 ```
 
 ## USB Setup (Windows)

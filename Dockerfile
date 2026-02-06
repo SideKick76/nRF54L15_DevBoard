@@ -6,7 +6,7 @@ ARG ZEPHYR_SDK_VERSION=0.17.0
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV ZEPHYR_BASE=/workdir/ncs/zephyr
-ENV PATH="/root/.local/bin:${PATH}"
+ENV PATH="/root/.local/bin:/root/nrfutil:${PATH}"
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
@@ -29,10 +29,18 @@ RUN apt-get update && apt-get install -y \
     g++-multilib \
     git \
     udev \
+    libusb-1.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install west
 RUN pip3 install west
+
+# Install nrfutil and required commands
+RUN mkdir -p /root/nrfutil \
+    && wget -q https://files.nordicsemi.com/artifactory/swtools/external/nrfutil/executables/x86_64-unknown-linux-gnu/nrfutil -O /root/nrfutil/nrfutil \
+    && chmod +x /root/nrfutil/nrfutil \
+    && /root/nrfutil/nrfutil install device \
+    && /root/nrfutil/nrfutil install nrf5sdk-tools
 
 # Initialize nRF Connect SDK
 WORKDIR /workdir
@@ -56,11 +64,12 @@ RUN wget -q https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZE
     && tar xf toolchain_linux-x86_64_arm-zephyr-eabi.tar.xz \
     && rm toolchain_linux-x86_64_arm-zephyr-eabi.tar.xz
 
-# Install nRF Command Line Tools (for nrfjprog)
+# Install nRF Command Line Tools and J-Link
 RUN wget -q https://nsscprodmedia.blob.core.windows.net/prod/software-and-other-downloads/desktop-software/nrf-command-line-tools/sw/versions-10-x-x/10-24-2/nrf-command-line-tools_10.24.2_amd64.deb \
     && apt-get update \
     && apt-get install -y /workdir/nrf-command-line-tools_10.24.2_amd64.deb \
+    && apt-get install -y /opt/nrf-command-line-tools/share/JLink_Linux_V794e_x86_64.deb \
     && rm nrf-command-line-tools_10.24.2_amd64.deb \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /workspace/projects
+WORKDIR /workspace
