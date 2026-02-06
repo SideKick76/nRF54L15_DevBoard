@@ -195,10 +195,10 @@ static void advertising_start(void)
 	}
 
 	if (is_advertising) {
-		/* Already advertising: restart the 30s timer */
-		LOG_INF("Restarting advertising timeout");
-		k_work_reschedule(&adv_timeout_work, K_SECONDS(ADV_TIMEOUT_SEC));
-		return;
+		/* Stop and restart advertising so iOS rescans */
+		LOG_INF("Restarting advertising");
+		bt_le_adv_stop();
+		is_advertising = false;
 	}
 
 	err = bt_le_adv_start(BT_LE_ADV_CONN, ad, ARRAY_SIZE(ad),
@@ -549,7 +549,21 @@ int main(void)
 		return err;
 	}
 
-	LOG_INF("Settings loaded (bonds restored)");
+	/* Hold Button4 at boot to clear all bond keys */
+	if (gpio_pin_get_dt(&buttons[3]) == 1) {
+		LOG_INF("Button4 held at boot - clearing all bonds!");
+		bt_unpair(BT_ID_DEFAULT, BT_ADDR_LE_ANY);
+
+		/* Blink LED1 3 times to confirm */
+		for (int i = 0; i < 6; i++) {
+			gpio_pin_toggle_dt(&led1);
+			k_sleep(K_MSEC(200));
+		}
+		gpio_pin_set_dt(&led1, 0);
+		LOG_INF("All bonds cleared");
+	} else {
+		LOG_INF("Settings loaded (bonds restored)");
+	}
 
 	err = hid_init();
 	if (err) {

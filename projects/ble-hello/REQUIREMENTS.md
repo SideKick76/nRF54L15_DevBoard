@@ -26,7 +26,7 @@ NFC-triggered BLE HID Consumer Control device (media remote). BLE advertising is
 - [x] Device appears in BLE scanner as "nRF54L15_Hello"
 - [x] Connectable and scannable
 - [x] Advertising stops automatically after 30s if no connection
-- [x] Subsequent NFC taps restart the 30s window
+- [x] Subsequent NFC taps restart advertising (stop/start cycle for iOS compatibility)
 - [x] NFC tag presents NDEF text record readable by phone
 
 ### FR-002: LED Status Indication
@@ -51,6 +51,8 @@ NFC-triggered BLE HID Consumer Control device (media remote). BLE advertising is
 - [x] HID reports include key press followed by key release
 - [x] BLE encryption enabled (required by iOS for HID)
 - [x] Bond storage via NVS settings for persistent pairing
+- [x] Overwrite oldest bond key when storage full
+- [x] Hold Button4 at boot to clear all bonds (LED2 blinks 3x to confirm)
 - [x] HID, BAS, and DIS services advertised
 
 ## Technical Specifications
@@ -112,7 +114,8 @@ ble-hello/
 - [x] Check serial/RTT output for debug messages
 
 ## Development Notes
-[Add notes during development]
+- iOS caches BLE bond keys aggressively; if pairing fails with "Security failed: err 4", clear bonds on both device (Button4+Reset) and iPhone (Forget Device or restart phone)
+- Advertising must be stopped and restarted (not just continued) on repeated NFC taps for iOS to detect it reliably
 
 ---
 
@@ -121,3 +124,4 @@ ble-hello/
 - 2026-02-05: Added NFC-triggered BLE advertising (FR-001 rewritten, FR-005 merged in)
 - 2026-02-05: Added LED2 blink 5x on NFC detection
 - 2026-02-06: Added HID Consumer Control (FR-003), removed custom GATT service (FR-004), 4-button media remote
+- 2026-02-06: Fix iOS pairing: add bond clearing (Button4+boot), restart advertising on NFC re-tap, overwrite oldest bonds
