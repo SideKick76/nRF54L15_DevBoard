@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  *
  * BLE HID Consumer Control (Media Remote) for nRF54L15-DK
- * NFC-triggered BLE advertising: tap NFC to start 30s advertising window
+ * NFC-triggered BLE advertising: tap NFC to advertise until connected
  * Buttons: Vol+, Vol-, Play/Pause, Next Track
  */
 
@@ -22,9 +22,6 @@
 #include <nfc/ndef/text_rec.h>
 
 LOG_MODULE_REGISTER(ble_hello, LOG_LEVEL_INF);
-
-/* Advertising timeout in seconds */
-#define ADV_TIMEOUT_SEC 30
 
 /* HID Consumer Control report configuration */
 #define REPORT_ID_CONSUMER_CTRL   1
@@ -127,13 +124,11 @@ static const struct bt_data sd[] = {
 /* Forward declarations */
 static void advertising_start(void);
 static void adv_start_work_handler(struct k_work *work);
-static void adv_timeout_work_handler(struct k_work *work);
 static void led_blink_work_handler(struct k_work *work);
 static void nfc_led_blink_work_handler(struct k_work *work);
 static void hid_report_work_handler(struct k_work *work);
 
 K_WORK_DEFINE(adv_start_work, adv_start_work_handler);
-K_WORK_DELAYABLE_DEFINE(adv_timeout_work, adv_timeout_work_handler);
 K_WORK_DELAYABLE_DEFINE(led_blink_work, led_blink_work_handler);
 K_WORK_DELAYABLE_DEFINE(nfc_led_blink_work, nfc_led_blink_work_handler);
 K_WORK_DEFINE(hid_report_work, hid_report_work_handler);
@@ -209,43 +204,10 @@ static void advertising_start(void)
 	}
 
 	is_advertising = true;
-	LOG_INF("Advertising started (30s timeout)");
+	LOG_INF("Advertising started (until connected)");
 
 	/* Start LED0 blink */
 	k_work_schedule(&led_blink_work, K_NO_WAIT);
-
-	/* Schedule advertising stop after timeout */
-	k_work_schedule(&adv_timeout_work, K_SECONDS(ADV_TIMEOUT_SEC));
-}
-
-static void advertising_stop(void)
-{
-	int err;
-
-	if (!is_advertising) {
-		return;
-	}
-
-	err = bt_le_adv_stop();
-	if (err) {
-		LOG_ERR("Advertising failed to stop (err %d)", err);
-		return;
-	}
-
-	is_advertising = false;
-	LOG_INF("Advertising stopped");
-
-	/* Cancel blink and turn LED0 off */
-	k_work_cancel_delayable(&led_blink_work);
-	gpio_pin_set_dt(&led0, 0);
-}
-
-static void adv_timeout_work_handler(struct k_work *work)
-{
-	ARG_UNUSED(work);
-
-	LOG_INF("Advertising timeout reached");
-	advertising_stop();
 }
 
 static void led_blink_work_handler(struct k_work *work)
@@ -309,8 +271,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
 	is_advertising = false;
 	current_conn = bt_conn_ref(conn);
 
-	/* Cancel advertising timeout and blink */
-	k_work_cancel_delayable(&adv_timeout_work);
+	/* Cancel blink */
 	k_work_cancel_delayable(&led_blink_work);
 
 	/* LED0 solid when connected */

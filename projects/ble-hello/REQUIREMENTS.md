@@ -7,7 +7,7 @@
 ---
 
 ## Project Overview
-NFC-triggered BLE HID Consumer Control device (media remote). BLE advertising is off by default and activated by tapping an NFC-enabled phone on the device, which starts a 30-second advertising window. Once paired, the 4 buttons act as media controls (volume up/down, play/pause, next track) via HID over GATT.
+NFC-triggered BLE HID Consumer Control device (media remote). BLE advertising is off by default and activated by tapping an NFC-enabled phone on the device, which starts indefinite advertising until a connection is established. On disconnect, advertising stops and the device returns to idle (waiting for next NFC tap). Once paired, the 4 buttons act as media controls (volume up/down, play/pause, next track) via HID over GATT.
 
 ## Hardware Requirements
 - nRF54L15 Development Kit (PCA10156)
@@ -22,10 +22,10 @@ NFC-triggered BLE HID Consumer Control device (media remote). BLE advertising is
 **Description**: BLE advertising is controlled by NFC field detection instead of starting on boot
 **Acceptance Criteria**:
 - [x] No BLE advertising on boot (NFC T2T emulation starts instead)
-- [x] Phone NFC tap triggers 30-second BLE advertising window
+- [x] Phone NFC tap triggers indefinite BLE advertising (no timeout)
 - [x] Device appears in BLE scanner as "nRF54L15_Hello"
 - [x] Connectable and scannable
-- [x] Advertising stops automatically after 30s if no connection
+- [x] Advertising continues until a connection is made
 - [x] Subsequent NFC taps restart advertising (stop/start cycle for iOS compatibility)
 - [x] NFC tag presents NDEF text record readable by phone
 
@@ -105,7 +105,7 @@ ble-hello/
 - [x] Verify LED1 blinks during advertising
 - [ ] Verify pairing completes from iPhone Settings → Bluetooth
 - [ ] Verify LED1 solid when connected
-- [x] Verify advertising stops after 30s timeout
+- [x] Verify advertising continues indefinitely until connected
 - [x] Verify re-tap starts advertising again
 - [ ] Verify Button1 → iPhone volume up
 - [ ] Verify Button2 → iPhone volume down
@@ -125,3 +125,4 @@ ble-hello/
 - 2026-02-05: Added LED2 blink 5x on NFC detection
 - 2026-02-06: Added HID Consumer Control (FR-003), removed custom GATT service (FR-004), 4-button media remote
 - 2026-02-06: Fix iOS pairing: add bond clearing (Button4+boot), restart advertising on NFC re-tap, overwrite oldest bonds
+- 2026-02-06: Change NFC advertising from 30s timeout to indefinite (until connected), idle on disconnect
