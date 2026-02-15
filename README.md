@@ -20,7 +20,7 @@ Hold Button4 at boot to clear all bonds.
 
 ### Prerequisites
 - Windows with WSL2
-- Docker Desktop (with WSL2 backend enabled)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (enable WSL2 integration in Settings → Resources → WSL Integration)
 
 ### One-liner install
 Open WSL and run:
