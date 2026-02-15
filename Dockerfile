@@ -39,8 +39,7 @@ RUN pip3 install west
 RUN mkdir -p /root/nrfutil \
     && wget -q https://files.nordicsemi.com/artifactory/swtools/external/nrfutil/executables/x86_64-unknown-linux-gnu/nrfutil -O /root/nrfutil/nrfutil \
     && chmod +x /root/nrfutil/nrfutil \
-    && /root/nrfutil/nrfutil install device \
-    && /root/nrfutil/nrfutil install nrf5sdk-tools
+    && /root/nrfutil/nrfutil install device
 
 # Initialize nRF Connect SDK
 WORKDIR /workdir
