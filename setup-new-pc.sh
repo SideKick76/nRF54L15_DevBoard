@@ -8,15 +8,23 @@ echo "=== nRF54L15 DevBoard - New PC Setup ==="
 echo ""
 
 # 1. Update system
-echo "[1/6] Updating system packages..."
+echo "[1/7] Updating system packages..."
 sudo apt update && sudo apt upgrade -y
 
 # 2. Install dependencies
-echo "[2/6] Installing dependencies..."
+echo "[2/7] Installing dependencies..."
 sudo apt install -y git curl build-essential
 
+# 3. Add user to docker group
+echo "[3/7] Setting up Docker permissions..."
+if ! groups | grep -q docker; then
+    sudo usermod -aG docker $USER
+    echo "Added $USER to docker group."
+    echo "NOTE: If Docker commands fail later, log out and back into WSL (exit + wsl)."
+fi
+
 # 3. Install Node.js
-echo "[3/6] Installing Node.js..."
+echo "[4/7] Installing Node.js..."
 if ! command -v node &> /dev/null; then
     curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
     sudo apt install -y nodejs
@@ -25,11 +33,11 @@ else
 fi
 
 # 4. Install Claude Code
-echo "[4/6] Installing Claude Code..."
+echo "[5/7] Installing Claude Code..."
 sudo npm install -g @anthropic-ai/claude-code
 
 # 5. Setup SSH key for GitHub (needed for pushing, not for cloning)
-echo "[5/6] Setting up SSH key..."
+echo "[6/7] Setting up SSH key..."
 if [ ! -f ~/.ssh/id_rsa ]; then
     ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ""
     echo ""
@@ -47,7 +55,7 @@ else
 fi
 
 # 6. Clone and setup project
-echo "[6/6] Cloning project..."
+echo "[7/7] Cloning project..."
 cd ~
 if [ ! -d "nRF54L15_DevBoard" ]; then
     git clone https://github.com/SideKick76/nRF54L15_DevBoard.git
@@ -60,8 +68,8 @@ cd ~/nRF54L15_DevBoard
 # Build Docker image
 echo ""
 echo "=== Building Docker image (this takes ~10 min) ==="
-docker build -t nrf54-dev .
-docker-compose up -d
+sg docker -c "docker build -t nrf54-dev ."
+sg docker -c "docker-compose up -d"
 
 echo ""
 echo "=========================================="
