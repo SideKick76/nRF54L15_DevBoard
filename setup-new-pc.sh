@@ -28,32 +28,29 @@ fi
 echo "[4/6] Installing Claude Code..."
 sudo npm install -g @anthropic-ai/claude-code
 
-# 5. Setup SSH key for GitHub
+# 5. Setup SSH key for GitHub (needed for pushing, not for cloning)
 echo "[5/6] Setting up SSH key..."
 if [ ! -f ~/.ssh/id_rsa ]; then
     ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ""
     echo ""
     echo "=========================================="
-    echo "  Add this SSH key to your GitHub account:"
+    echo "  Optional: Add this SSH key to GitHub"
+    echo "  if you want to push changes:"
     echo "  https://github.com/settings/ssh/new"
     echo "=========================================="
     echo ""
     cat ~/.ssh/id_rsa.pub
     echo ""
-    read -p "Press Enter after adding the key to GitHub..."
+    read -p "Press Enter to continue..."
 else
     echo "SSH key already exists"
 fi
-
-# Test GitHub connection
-echo "Testing GitHub connection..."
-ssh -T git@github.com 2>&1 || true
 
 # 6. Clone and setup project
 echo "[6/6] Cloning project..."
 cd ~
 if [ ! -d "nRF54L15_DevBoard" ]; then
-    git clone git@github.com:SideKick76/nRF54L15_DevBoard.git
+    git clone https://github.com/SideKick76/nRF54L15_DevBoard.git
 else
     echo "Project already cloned"
 fi
